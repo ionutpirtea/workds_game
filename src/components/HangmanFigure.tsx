@@ -13,17 +13,18 @@ const HangmanFigure = memo(function HangmanFigure({
   maxWrong,
 }: Props) {
   const ratio = wrongGuesses / maxWrong
-  const sockXStart = 42
-  const sockSpacing = 43
+  const ninjaXStart = 42
+  const ninjaSpacing = 43
+  const remainingNinjas = Math.max(0, maxWrong - wrongGuesses)
 
   return (
     <motion.div
-      className="flex flex-col items-center gap-3"
+      className="flex flex-col items-center gap-1.5"
       initial={{ opacity: 0, y: -10 }}
       animate={{ opacity: 1, y: 0 }}
       transition={{ duration: 0.3 }}
     >
-      <div className="relative w-[26rem] h-44">
+      <div className="relative w-[23rem] h-36">
         <svg
           viewBox="0 0 320 210"
           className="w-full h-full text-slate-200"
@@ -63,7 +64,7 @@ const HangmanFigure = memo(function HangmanFigure({
           />
 
           {Array.from({ length: maxWrong }).map((_, index) => {
-            const x = sockXStart + index * sockSpacing
+            const x = ninjaXStart + index * ninjaSpacing
 
             return (
               <g key={index}>
@@ -76,7 +77,7 @@ const HangmanFigure = memo(function HangmanFigure({
                   strokeWidth="2"
                   strokeLinecap="round"
                 />
-                {wrongGuesses > index && (
+                {index < remainingNinjas && (
                   <motion.text
                     x={x}
                     y="34"
@@ -86,7 +87,7 @@ const HangmanFigure = memo(function HangmanFigure({
                     animate={{ opacity: 1, y: 34, scale: 1 }}
                     style={{ fontSize: '42px' }}
                   >
-                    🧦
+                    🥷
                   </motion.text>
                 )}
               </g>
@@ -95,9 +96,9 @@ const HangmanFigure = memo(function HangmanFigure({
         </svg>
       </div>
 
-      <div className="text-2xl sm:text-3xl text-slate-100 font-extrabold">
-        Chaussettes pendues:{' '}
-        <span className="font-extrabold text-sky-300">{wrongGuesses}</span> /{' '}
+      <div className="text-xl sm:text-2xl text-slate-100 font-extrabold">
+        Ninjas restants:{' '}
+        <span className="font-extrabold text-sky-300">{remainingNinjas}</span> /{' '}
         {maxWrong}
       </div>
 

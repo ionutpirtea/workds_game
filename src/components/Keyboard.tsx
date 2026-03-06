@@ -21,6 +21,7 @@ const Keyboard = memo(function Keyboard({
         return (
           <motion.button
             key={letter}
+            data-keyboard-letter="true"
             whileTap={!disabled ? { scale: 0.9 } : {}}
             whileHover={!disabled ? { y: -1 } : {}}
             onClick={() => !disabled && onGuess(letter)}

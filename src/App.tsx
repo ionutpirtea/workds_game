@@ -4,6 +4,7 @@ import confetti from 'canvas-confetti'
 import { Volume2, VolumeX } from 'lucide-react'
 import HangmanFigure from './components/HangmanFigure'
 import Keyboard from './components/Keyboard'
+import MathQuiz from './components/MathQuiz'
 import StatusBar from './components/StatusBar'
 
 const normalizeLetter = (ch: string) =>
@@ -23,6 +24,7 @@ const SOUND_URLS = {
 
 type Status = 'playing' | 'win' | 'lose'
 type WordEntry = { word: string; hint: string }
+type AppTab = 'hangman' | 'math'
 
 const SCORE_STORAGE_KEY = 'french-hangman-scores'
 const LAST_PLAYER_STORAGE_KEY = 'french-hangman-last-player'
@@ -66,6 +68,7 @@ const parseWordsCsv = (csvText: string): WordEntry[] => {
 }
 
 function App() {
+  const [activeTab, setActiveTab] = useState<AppTab>('hangman')
   const [word, setWord] = useState('')
   const [normalizedWord, setNormalizedWord] = useState('')
   const [hint, setHint] = useState('')
@@ -375,176 +378,206 @@ function App() {
   return (
     <div className="h-full w-full overflow-hidden bg-gradient-to-br from-slate-950 via-slate-900 to-slate-950 text-slate-50 flex items-center justify-center px-2 py-1">
       <motion.div
-        className="w-full h-full max-w-none rounded-none border-0 bg-slate-900/65 backdrop-blur-xl px-3 sm:px-5 py-2 sm:py-3 flex flex-col items-center gap-2 overflow-hidden"
+        className="relative w-full h-full max-w-none rounded-none border-0 bg-slate-900/65 backdrop-blur-xl px-3 sm:px-5 py-1 sm:py-1.5 flex flex-col items-center gap-1 overflow-hidden"
         initial={{ opacity: 0, y: 12, scale: 0.97 }}
         animate={{ opacity: 1, y: 0, scale: 1 }}
         transition={{ duration: 0.28, ease: 'easeOut' }}
       >
-        <div className="w-full flex items-start justify-between gap-3">
-          <div className="flex flex-col">
-            <h1 className="text-2xl sm:text-3xl font-semibold">
-              <span className="text-sky-400">Le jeu des chaussettes</span>
-            </h1>
-            <span className="mt-1 text-2xl sm:text-3xl font-extrabold text-emerald-300">
-              Score : <span className="text-emerald-200 font-black">{score}</span>
-            </span>
-            <div className="mt-2 w-full max-w-xs">
-              <label
-                htmlFor="playerName"
-                className="block text-xs sm:text-sm uppercase tracking-[0.15em] text-slate-300 mb-1"
-              >
-                Nom du joueur
-              </label>
-              <div className="flex items-center gap-2">
-                <input
-                  id="playerName"
-                  type="text"
-                  value={nameInput}
-                  onChange={(event) => setNameInput(event.target.value)}
-                  placeholder="Entrez votre nom"
-                  className="w-full rounded-lg border border-slate-700 bg-slate-900/90 text-slate-100 px-3 py-2 text-sm sm:text-base focus:outline-none focus:ring-2 focus:ring-sky-500"
-                />
+        <div className="w-full flex items-center justify-center gap-2 sm:gap-3">
+          <button
+            type="button"
+            onClick={() => setActiveTab('hangman')}
+            className={`appearance-none rounded-2xl px-6 sm:px-8 py-3 sm:py-4 text-lg sm:text-xl font-extrabold border-2 transition-colors ${
+              activeTab === 'hangman'
+                ? 'border-sky-200 bg-sky-500 text-slate-950'
+                : 'border-slate-700 bg-slate-900/80 text-slate-200 hover:border-sky-400'
+            }`}
+          >
+            Ninjas
+          </button>
+          <button
+            type="button"
+            onClick={() => setActiveTab('math')}
+            className={`appearance-none rounded-2xl px-6 sm:px-8 py-3 sm:py-4 text-lg sm:text-xl font-extrabold border-2 transition-colors ${
+              activeTab === 'math'
+                ? 'border-emerald-200 bg-emerald-500 text-slate-950'
+                : 'border-slate-700 bg-slate-900/80 text-slate-200 hover:border-emerald-400'
+            }`}
+          >
+            Math quiz
+          </button>
+        </div>
+
+        {activeTab === 'hangman' ? (
+          <>
+            <div className="w-full flex items-start justify-between gap-2">
+              <div className="flex flex-col">
+                <h1 className="text-2xl sm:text-3xl font-semibold">
+                  <span className="text-sky-400">Le jeu des ninjas qui disparaissent</span>
+                </h1>
+                <span className="mt-1 text-2xl sm:text-3xl font-extrabold text-emerald-300">
+                  Score : <span className="text-emerald-200 font-black">{score}</span>
+                </span>
+                <div className="mt-2 w-full max-w-xs">
+                  <label
+                    htmlFor="playerName"
+                    className="block text-xs sm:text-sm uppercase tracking-[0.15em] text-slate-300 mb-1"
+                  >
+                    Nom du joueur
+                  </label>
+                  <div className="flex items-center gap-2">
+                    <input
+                      id="playerName"
+                      type="text"
+                      value={nameInput}
+                      onChange={(event) => setNameInput(event.target.value)}
+                      placeholder="Entrez votre nom"
+                      className="w-full h-[45px] rounded-2xl border border-slate-700 bg-slate-900/90 text-slate-100 px-3 text-[18px] leading-[18px] focus:outline-none"
+                    />
+                    <button
+                      type="button"
+                      onClick={handleSavePlayerName}
+                      className="appearance-none rounded-xl border border-emerald-200 bg-gradient-to-r from-emerald-500 to-green-400 text-white px-4 py-2 text-xs sm:text-sm font-extrabold shadow-[0_8px_20px_rgba(34,197,94,0.45)] hover:from-emerald-400 hover:to-green-300 transition-colors"
+                    >
+                      Sauver
+                    </button>
+                  </div>
+                </div>
+              </div>
+              <div className="flex items-start gap-2">
                 <button
-                  type="button"
-                  onClick={handleSavePlayerName}
-                  className="appearance-none rounded-xl border border-emerald-200 bg-gradient-to-r from-emerald-500 to-green-400 text-white px-4 py-2 text-xs sm:text-sm font-extrabold shadow-[0_8px_20px_rgba(34,197,94,0.45)] hover:from-emerald-400 hover:to-green-300 transition-colors"
+                  onClick={() => setSoundOn((v) => !v)}
+                  className="inline-flex items-center justify-center w-9 h-9 rounded-full border border-slate-700/80 bg-slate-900/80 hover:border-sky-400/80 text-slate-200 hover:text-sky-300 transition-colors"
+                  aria-label={soundOn ? 'Désactiver le son' : 'Activer le son'}
                 >
-                  Sauver
+                  {soundOn ? (
+                    <Volume2 className="w-4 h-4" />
+                  ) : (
+                    <VolumeX className="w-4 h-4" />
+                  )}
                 </button>
               </div>
             </div>
-          </div>
-          <div className="flex items-start gap-2">
-            <button
-              onClick={() => setSoundOn((v) => !v)}
-              className="inline-flex items-center justify-center w-9 h-9 rounded-full border border-slate-700/80 bg-slate-900/80 hover:border-sky-400/80 text-slate-200 hover:text-sky-300 transition-colors"
-              aria-label={soundOn ? 'Désactiver le son' : 'Activer le son'}
-            >
-              {soundOn ? (
-                <Volume2 className="w-4 h-4" />
-              ) : (
-                <VolumeX className="w-4 h-4" />
-              )}
-            </button>
-          </div>
-        </div>
 
-        <div className="flex flex-col items-center gap-1 w-full flex-1 min-h-0">
-          <div className="flex flex-col items-center gap-1">
-            {playerName.trim() && (
-              <div className="px-4 py-1.5 rounded-full border border-emerald-800/80 bg-emerald-950/40 text-emerald-700 text-lg sm:text-2xl font-extrabold tracking-[0.08em] shadow-lg">
-                Joueur:{' '}
-                <span
-                  className="font-black"
-                  style={{
-                    color: '#166534',
-                    fontSize: 'clamp(2rem, 3.8vw, 2.8rem)',
-                    textShadow: '0 1px 4px rgba(0,0,0,0.35)',
-                  }}
-                >
-                  {playerName.trim()}
-                </span>
-              </div>
-            )}
-            <HangmanFigure wrongGuesses={wrongGuesses} maxWrong={MAX_WRONG} />
-
-            <button
-              onClick={handleRestart}
-              style={{ minHeight: '56px', fontSize: '1.35rem', lineHeight: 1.1 }}
-              className="appearance-none inline-flex items-center justify-center min-w-[170px] sm:min-w-[205px] px-6 py-3 sm:px-7 sm:py-3 font-bold rounded-2xl border-2 border-orange-100 bg-gradient-to-r from-orange-500 to-amber-400 text-white shadow-[0_10px_24px_rgba(249,115,22,0.55)] hover:from-orange-400 hover:to-amber-300 transition-colors"
-            >
-              Mot suivant
-            </button>
-
-            <div className="text-lg sm:text-2xl uppercase tracking-[0.18em] text-slate-100 font-semibold">
-              Erreurs:{' '}
-              <span className="font-semibold text-sky-300">
-                {wrongCountText}
-              </span>
-            </div>
-          </div>
-
-          <motion.div
-            className="w-full flex flex-col items-center gap-0 flex-1 min-h-0"
-            animate={
-              status === 'win'
-                ? {
-                    y: [0, -6, 0],
-                    scale: [1, 1.03, 1],
-                  }
-                : { y: 0, scale: 1 }
-            }
-            transition={
-              status === 'win'
-                ? {
-                    duration: 0.55,
-                    repeat: Infinity,
-                    repeatType: 'mirror',
-                    ease: 'easeInOut',
-                  }
-                : {}
-            }
-          >
-            <div className="flex items-center justify-center">
-              <div className="text-xl sm:text-2xl uppercase tracking-[0.25em] text-slate-100 font-bold">
-                Mot mystère
-              </div>
-            </div>
-            <div className="flex flex-wrap justify-center gap-2 sm:gap-3">
-              {displayChars.map((item) => (
-                <motion.div
-                  key={item.id}
-                  initial={{ opacity: 0, y: 8 }}
-                  animate={{ opacity: 1, y: 0 }}
-                  className="flex flex-col items-center"
-                >
-                  <div
-                    className={`w-20 sm:w-24 h-20 sm:h-24 rounded-2xl border flex items-center justify-center text-[3.2rem] sm:text-[4rem] font-extrabold tracking-[0.2em] sm:tracking-[0.25em] ${
-                      item.revealed
-                        ? 'border-slate-500/80 bg-slate-900/90'
-                        : 'border-slate-700/90 bg-slate-900/40'
-                    }`}
-                  >
-                    {item.revealed ? item.char : '_'}
+            <div className="flex flex-col items-center gap-0.5 w-full flex-1 min-h-0 -mt-3">
+              <div className="flex flex-col items-center gap-0.5">
+                {playerName.trim() && (
+                  <div className="px-3 py-1 rounded-full border border-emerald-800/80 bg-emerald-950/40 text-emerald-700 text-base sm:text-xl font-extrabold tracking-[0.06em] shadow-lg">
+                    Joueur:{' '}
+                    <span
+                      className="font-black"
+                      style={{
+                        color: '#166534',
+                        fontSize: 'clamp(1.35rem, 2.7vw, 2rem)',
+                        textShadow: '0 1px 4px rgba(0,0,0,0.35)',
+                      }}
+                    >
+                      {playerName.trim()}
+                    </span>
                   </div>
-                </motion.div>
-              ))}
-            </div>
-            <div className="mt-1 flex items-center justify-center gap-3 flex-wrap">
-              <p className="text-lg sm:text-xl text-slate-100 text-center max-w-2xl font-semibold">
-                Indice : {hint}
-              </p>
-              <button
-                type="button"
-                onClick={() => speakHint(hint)}
-                className="appearance-none inline-flex items-center gap-2 px-5 py-2.5 text-base sm:text-lg font-extrabold rounded-xl border border-amber-200 bg-gradient-to-r from-amber-400 to-orange-400 text-slate-950 shadow-[0_8px_20px_rgba(251,191,36,0.45)] hover:from-amber-300 hover:to-orange-300 transition-colors"
+                )}
+                <HangmanFigure wrongGuesses={wrongGuesses} maxWrong={MAX_WRONG} />
+
+                <button
+                  onClick={handleRestart}
+                  style={{ minHeight: '45px', fontSize: '1.35rem', lineHeight: 1.1 }}
+                  className="appearance-none inline-flex items-center justify-center min-w-[170px] sm:min-w-[205px] px-6 py-3 sm:px-7 sm:py-3 font-bold rounded-2xl border-2 border-orange-100 bg-gradient-to-r from-orange-500 to-amber-400 text-white shadow-[0_10px_24px_rgba(249,115,22,0.55)] hover:from-orange-400 hover:to-amber-300 transition-colors"
+                >
+                  Mot suivant
+                </button>
+
+                <div className="text-base sm:text-xl uppercase tracking-[0.14em] text-slate-100 font-semibold">
+                  Erreurs:{' '}
+                  <span className="font-semibold text-sky-300">
+                    {wrongCountText}
+                  </span>
+                </div>
+              </div>
+
+              <motion.div
+                className="w-full flex flex-col items-center gap-0 flex-1 min-h-0 -mt-2"
+                animate={
+                  status === 'win'
+                    ? {
+                        y: [0, -6, 0],
+                        scale: [1, 1.03, 1],
+                      }
+                    : { y: 0, scale: 1 }
+                }
+                transition={
+                  status === 'win'
+                    ? {
+                        duration: 0.55,
+                        repeat: Infinity,
+                        repeatType: 'mirror',
+                        ease: 'easeInOut',
+                      }
+                    : {}
+                }
               >
-                <Volume2 className="w-6 h-6" />
-                Lire l’indice
-              </button>
+                <div className="flex items-center justify-center">
+                  <div className="text-lg sm:text-xl uppercase tracking-[0.18em] text-slate-100 font-bold">
+                    Mot mystère
+                  </div>
+                </div>
+                <div className="flex flex-wrap justify-center gap-1.5 sm:gap-2">
+                  {displayChars.map((item) => (
+                    <motion.div
+                      key={item.id}
+                      initial={{ opacity: 0, y: 8 }}
+                      animate={{ opacity: 1, y: 0 }}
+                      className="flex flex-col items-center"
+                    >
+                      <div
+                        className={`w-16 sm:w-20 h-16 sm:h-20 rounded-2xl border flex items-center justify-center text-[2.5rem] sm:text-[3.2rem] font-extrabold tracking-[0.15em] sm:tracking-[0.2em] ${
+                          item.revealed
+                            ? 'border-slate-500/80 bg-slate-900/90'
+                            : 'border-slate-700/90 bg-slate-900/40'
+                        }`}
+                      >
+                        {item.revealed ? item.char : '_'}
+                      </div>
+                    </motion.div>
+                  ))}
+                </div>
+                <div className="mt-1 flex items-center justify-center gap-3 flex-wrap">
+                  <p className="text-[18px] leading-[18px] text-slate-100 text-center max-w-2xl font-semibold">
+                    Indice : {hint}
+                  </p>
+                  <button
+                    type="button"
+                    onClick={() => speakHint(hint)}
+                    className="hint-read-button appearance-none inline-flex items-center gap-2 px-5 py-2.5 text-base sm:text-lg font-extrabold rounded-xl border border-amber-200 bg-gradient-to-r from-amber-400 to-orange-400 text-slate-950 shadow-[0_8px_20px_rgba(251,191,36,0.45)] hover:from-amber-300 hover:to-orange-300 transition-colors"
+                  >
+                    <Volume2 className="w-6 h-6" />
+                    Lire l’indice
+                  </button>
+                  <div className="text-[18px] leading-[18px] text-slate-300 font-semibold">
+                    Les lettres avec accents sont acceptées mais devinées via leurs équivalents: é -&gt; E, ç -&gt; C, etc.
+                  </div>
+                </div>
+              </motion.div>
+
+              <div className="w-full mt-0 -mt-3 shrink-0 pb-0">
+                <Keyboard
+                  onGuess={handleGuess}
+                  disabledLetters={guessedLetters}
+                  isGameOver={status !== 'playing'}
+                />
+              </div>
             </div>
-          </motion.div>
 
-          <div className="w-full mt-1 shrink-0 pb-1">
-            <Keyboard
-              onGuess={handleGuess}
-              disabledLetters={guessedLetters}
-              isGameOver={status !== 'playing'}
+            <StatusBar
+              status={status}
+              word={word}
+              playerName={activePlayerName}
+              onRestart={handleRestart}
             />
-          </div>
-        </div>
 
-        <StatusBar
-          status={status}
-          word={word}
-          playerName={activePlayerName}
-          onRestart={handleRestart}
-        />
-
-        <div className="w-full text-[10px] text-slate-500 text-center mt-0">
-          Les lettres avec accents sont acceptées mais devinées via leurs
-          équivalents: é → E, ç → C, etc.
-        </div>
+          </>
+        ) : (
+          <MathQuiz playerName={activePlayerName} />
+        )}
       </motion.div>
     </div>
   )
