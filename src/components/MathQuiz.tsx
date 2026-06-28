@@ -5,7 +5,7 @@ type MathQuestion = {
   id: string
   left: number
   right: number
-  operator: '+' | '-'
+  operator: '*' | '/'
 }
 
 const QUESTION_COUNT = 10
@@ -18,34 +18,42 @@ type MathQuizProps = {
 const randomInt = (min: number, max: number) =>
   Math.floor(Math.random() * (max - min + 1)) + min
 
-const createAdditionQuestion = (index: number): MathQuestion => {
-  const left = randomInt(11, 79)
-  const right = randomInt(11, 79)
+const createMultiplicationQuestion = (index: number): MathQuestion => {
+  const left = randomInt(100, 999)
+  const right = randomInt(100, 999)
 
   return {
-    id: `add-${index}`,
+    id: `mul-${index}`,
     left,
     right,
-    operator: '+',
+    operator: '*',
   }
 }
 
-const createSubtractionQuestion = (index: number): MathQuestion => {
-  const left = randomInt(12, 79)
-  const right = randomInt(11, left - 1)
+const createDivisionQuestion = (index: number): MathQuestion => {
+  let divisor = 11
+  let quotient = 2
+  let dividend = 22
+
+  // Keep both operands 2-digit while ensuring the result is an integer.
+  do {
+    divisor = randomInt(11, 99)
+    quotient = randomInt(2, 9)
+    dividend = divisor * quotient
+  } while (dividend > 99)
 
   return {
-    id: `sub-${index}`,
-    left,
-    right,
-    operator: '-',
+    id: `div-${index}`,
+    left: dividend,
+    right: divisor,
+    operator: '/',
   }
 }
 
 const getAnswer = (question: MathQuestion) =>
-  question.operator === '+'
-    ? question.left + question.right
-    : question.left - question.right
+  question.operator === '*'
+    ? question.left * question.right
+    : question.left / question.right
 
 function MathQuiz({ playerName }: MathQuizProps) {
   const [seed, setSeed] = useState(0)
@@ -72,18 +80,18 @@ function MathQuiz({ playerName }: MathQuizProps) {
   const activePlayerName = playerName.trim() || 'Joueur'
   const score = scoresByPlayer[activePlayerName] ?? 0
 
-  const additions = useMemo(
+  const multiplications = useMemo(
     () =>
       Array.from({ length: QUESTION_COUNT }, (_, index) =>
-        createAdditionQuestion(index + seed * QUESTION_COUNT),
+        createMultiplicationQuestion(index + seed * QUESTION_COUNT),
       ),
     [seed],
   )
 
-  const subtractions = useMemo(
+  const divisions = useMemo(
     () =>
       Array.from({ length: QUESTION_COUNT }, (_, index) =>
-        createSubtractionQuestion(index + seed * QUESTION_COUNT),
+        createDivisionQuestion(index + seed * QUESTION_COUNT),
       ),
     [seed],
   )
@@ -240,16 +248,16 @@ function MathQuiz({ playerName }: MathQuizProps) {
 
       <div className="grid grid-cols-[20px_minmax(0,1fr)_minmax(0,1fr)_20px] gap-4 flex-1 min-h-0 overflow-auto">
         <section className="col-start-2 rounded-2xl border border-sky-700/40 bg-sky-950/20 p-3 sm:p-4">
-          <h3 className="text-lg sm:text-xl font-bold text-sky-200 mb-3">Additions</h3>
+          <h3 className="text-lg sm:text-xl font-bold text-sky-200 mb-3">Multiplications</h3>
           <div className="flex flex-col gap-2">
-            {additions.map((question) => renderQuestion(question))}
+            {multiplications.map((question) => renderQuestion(question))}
           </div>
         </section>
 
         <section className="col-start-3 rounded-2xl border border-emerald-700/40 bg-emerald-950/20 p-3 sm:p-4">
-          <h3 className="text-lg sm:text-xl font-bold text-emerald-200 mb-3">Subtractions</h3>
+          <h3 className="text-lg sm:text-xl font-bold text-emerald-200 mb-3">Divisions</h3>
           <div className="flex flex-col gap-2">
-            {subtractions.map((question) => renderQuestion(question))}
+            {divisions.map((question) => renderQuestion(question))}
           </div>
         </section>
       </div>

@@ -56,7 +56,7 @@ const parseWordsCsv = (csvText: string): WordEntry[] => {
     const word = row.slice(0, separatorIndex).trim()
     const hint = row.slice(separatorIndex + 1).trim()
 
-    if (!word || !hint || word.length < 6) continue
+    if (!word || !hint || word.length < 8) continue
     const key = word.toLowerCase()
     if (seen.has(key)) continue
     seen.add(key)
@@ -558,7 +558,7 @@ function App() {
                 </div>
               </motion.div>
 
-              <div className="w-full mt-0 -mt-3 shrink-0 pb-0">
+              <div className="w-full mt-0 -mt-[64px] sm:-mt-[60px] shrink-0 pb-0">
                 <Keyboard
                   onGuess={handleGuess}
                   disabledLetters={guessedLetters}
