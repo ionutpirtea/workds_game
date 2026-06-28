@@ -10,6 +10,16 @@ APP_CMD="${APP_CMD:-npm run dev}"
 
 mkdir -p "$SAVE_DIR"
 
+if [[ ! -d "$ROOT_DIR/node_modules" ]]; then
+  echo "node_modules missing, installing dependencies..."
+  npm install --include=dev
+fi
+
+if [[ "$APP_CMD" == "npm run dev" && ! -x "$ROOT_DIR/node_modules/.bin/vite" ]]; then
+  echo "Vite not found in node_modules/.bin, installing dev dependencies..."
+  npm install --include=dev
+fi
+
 if [[ -f "$PID_FILE" ]]; then
   EXISTING_PID="$(cat "$PID_FILE")"
   if kill -0 "$EXISTING_PID" 2>/dev/null; then
